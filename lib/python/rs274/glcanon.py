@@ -523,12 +523,12 @@ class GlCanonDraw:
         except Exception as e:
             system_memory_bytes = 4
             print("Error: Unable to determine system memory, defaulting to 4 GB")
-        system_memory_gb = system_memory_bytes / (1024 ** 3)
+        self.system_memory_gb = system_memory_bytes / (1024 ** 3)
 
         # Set to -1 to disable the file size limit.
         # The file size limit is set to 20MB or 1/4 of the system memory, whichever is smaller.
         # TODO I don't see any calculation for 1/4 of system_memory_gb ? CMorley 2024
-        self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
+        self.max_file_size = min(self.system_memory_gb, 20) * 1024 * 1024
 
         try:
             if os.environ["INI_FILE_NAME"]:
@@ -1306,7 +1306,7 @@ class GlCanonDraw:
         show_program = self.get_show_program()
         if os.path.exists(s.file):
             if 0 < self.max_file_size < os.stat(s.file).st_size :
-                print("File too large to load, disabling preview.")
+                print("File too large to load, disabling preview: fs= %s; max=%s; os=%s;"%(os.stat(s.file).st_size, self.max_file_size, self.system_memory_gb))
                 show_program = False
 
         if show_program:
