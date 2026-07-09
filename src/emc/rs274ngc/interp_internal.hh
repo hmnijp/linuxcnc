@@ -68,7 +68,7 @@ got rounded or truncated to 0.001 inch or 0.01 mm precision would be accepted.
 Tighter tolerance down to a minimum of 1 micron +- also accepted.
 ******************************************************************************/
 
-#define CENTER_ARC_RADIUS_TOLERANCE_INCH (2 * 0.001 * M_SQRT2)
+#define CENTER_ARC_RADIUS_TOLERANCE_INCH 1e10 //(2 * 0.001 * M_SQRT2)
 #define MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH 0.00004
 
 // Note: started from original tolerance and divided by 10 here (since that was originally done inside the interpreter)
@@ -76,7 +76,7 @@ Tighter tolerance down to a minimum of 1 micron +- also accepted.
 
 /* Equivalent metric constants */
 
-#define CENTER_ARC_RADIUS_TOLERANCE_MM (2 * 0.01 * M_SQRT2)
+#define CENTER_ARC_RADIUS_TOLERANCE_MM 1e10 //(2 * 0.01 * M_SQRT2)
 #define MIN_CENTER_ARC_RADIUS_TOLERANCE_MM 0.001
 
 #define RADIUS_TOLERANCE_MM (RADIUS_TOLERANCE_INCH * MM_PER_INCH)

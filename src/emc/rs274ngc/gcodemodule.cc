@@ -1126,12 +1126,20 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double len = hypot(o[X]-n[X], o[Y]-n[Y]) * (25.4 * GET_EXTERNAL_LENGTH_UNITS());
     /* If the signs of the angles differ, make them the same to allow monotonic progress through the arc */
     /* If start and end points are nearly identical, then interpret as a full turn */
-    if(rot < 0) { // CW G2
+    // CIRCLE_FUZZ (1.0e-6)
+    // CART_FUZZ (1.0e-8)
+/*     if(rot < 0) { // CW G2
         if (theta1 < theta2) theta2 -= 2*M_PI;
         if (len < CART_FUZZ) theta2 -= 2*M_PI;
     } else { // CCW G3
         if (theta1 > theta2) theta2 += 2*M_PI;
         if (len < CART_FUZZ) theta2 += 2*M_PI;
+    } */
+
+    if(rot < 0) {
+        while(theta2 - theta1 > -CART_FUZZ) theta2 -= 2*M_PI;
+    } else {
+        while(theta2 - theta1 < CART_FUZZ) theta2 += 2*M_PI;
     }
 
     // if multi-turn, add the right number of full circles
@@ -1146,11 +1154,23 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double d[9] = {0, 0, 0, n[3]-o[3], n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
     d[Z] = n[Z] - o[Z];
 
+    //spiral steps
+    double ro = hypot(o[X]-cx, o[Y]-cy);
+    double rn = hypot(n[X]-cx, n[Y]-cy);
+    double dr = rn - ro;
+    double spsteps = dr / steps;
+
+
     double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
     for(int i=0; i<steps-1; i++) {
         double f = (i+1) * rsteps;
         double p[9];
         rotate(tx, ty, dc, ds);
+        double rt = hypot(tx, ty);
+        tx = tx * (rt + spsteps)/rt;
+        ty = ty * (rt + spsteps)/rt;
+
+
         p[X] = tx + cx;
         p[Y] = ty + cy;
         p[Z] = o[Z] + d[Z] * f;
